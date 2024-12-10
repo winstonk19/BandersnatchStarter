@@ -76,13 +76,12 @@ if __name__ == "__main__":
     db = Database()
     print(f"Initial count: {db.count()}")
 
-    db.seed(10)  # Seed 10 monsters
+    db.seed(990)  # Seed 10 monsters
     print(f"Count after seeding: {db.count()}")
 
-    print(db.html_table())  # Print HTML representation of the DataFrame
+    
 
-    db.reset()  # Clear the database
-    print(f"Count after reset: {db.count()}")
+    
     
    
   
