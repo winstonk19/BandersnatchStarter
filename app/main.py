@@ -5,12 +5,12 @@ import random
 from MonsterLab import Monster
 from flask import Flask, render_template, request
 from pandas import DataFrame
-
+from datetime import datetime
 from app.data import Database
 from app.graph import chart
 from app.machine import Machine
 
-SPRINT = 2
+SPRINT = 3
 APP = Flask(__name__)
 
 
@@ -66,33 +66,56 @@ def view():
 def model():
     if SPRINT < 3:
         return render_template("model.html")
+    
     db = Database()
     options = ["Level", "Health", "Energy", "Sanity", "Rarity"]
     filepath = os.path.join("app", "model.joblib")
+
+    
     if not os.path.exists(filepath):
         df = db.dataframe()
         machine = Machine(df[options])
         machine.save(filepath)
     else:
         machine = Machine.open(filepath)
+    
+    # Generate input data
     stats = [round(random.uniform(1, 250), 2) for _ in range(3)]
     level = request.values.get("level", type=int) or random.randint(1, 20)
     health = request.values.get("health", type=float) or stats.pop()
     energy = request.values.get("energy", type=float) or stats.pop()
     sanity = request.values.get("sanity", type=float) or stats.pop()
-    prediction, confidence = machine(DataFrame(
+    
+   
+    input_data = DataFrame(
         [dict(zip(options, (level, health, energy, sanity)))]
-    ))
+    )
+    
+  
+    prediction, confidence = machine(input_data)
+    
+  
+    formatted_confidence = f"{float(confidence[0].max()):.2%}"
+
+ 
     info = machine.info()
+    formatted_info = {
+        "base_model": info["model_type"],
+        "timestamp": datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"),
+        "train_accuracy": f"{info['train_accuracy']:.0%}",
+        "test_accuracy": f"{info['test_accuracy']:.0%}",
+        "features": ", ".join(info["features"]),
+    }
+    
     return render_template(
         "model.html",
-        info=info,
+        info=formatted_info,
         level=level,
         health=health,
         energy=energy,
         sanity=sanity,
-        prediction=prediction,
-        confidence=f"{confidence:.2%}",
+        prediction=prediction[0],  
+        confidence=formatted_confidence,  
     )
 
 

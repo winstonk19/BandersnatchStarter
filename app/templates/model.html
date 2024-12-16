@@ -1,7 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1>Bandersnatch Model</h1>
-    <p>{{ info | safe }}</p>
+    <p>
+        <strong>Base Model:</strong> {{ info.base_model }}<br>
+        <strong>Timestamp:</strong> {{ info.timestamp }}<br>
+        <strong>Train Accuracy:</strong> {{ info.train_accuracy }}<br>
+        <strong>Test Accuracy:</strong> {{ info.test_accuracy }}<br>
+        <strong>Features:</strong> {{ info.features }}
+    </p>
 
     <h2>Prediction Basis</h2>
     <form id="form" method="post" action="{{ url_for('model') }}">
@@ -30,5 +36,4 @@
         <br>
         Confidence: {{ confidence }}
     </h3>
-
 {% endblock %}
